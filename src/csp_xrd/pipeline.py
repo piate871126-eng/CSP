@@ -10,6 +10,8 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from .smiles import smiles_to_structure
+
 
 BRAVAIS_TEMPLATES = {
     "cubic": lambda a, b, c: Lattice.cubic((a * b * c) ** (1 / 3)),
@@ -92,7 +94,7 @@ def evaluate_candidates(candidates: Iterable[tuple[str, Structure]]) -> list[Can
     return sorted(results, key=lambda x: x.energy_score)
 
 
-def _simulate_xrd(structure: Structure, output_dir: Path, wavelength: str = "CuKa") -> dict:
+def simulate_xrd(structure: Structure, output_dir: Path, wavelength: str = "CuKa") -> dict:
     calc = XRDCalculator(wavelength=wavelength)
     pattern = calc.get_pattern(structure, two_theta_range=(5, 90))
     csv_path = output_dir / "xrd_pattern.csv"
@@ -130,7 +132,7 @@ def run_pipeline(structure_path: str | Path, output_dir: str | Path) -> Path:
     best_cif = output_dir / "predicted_best_structure.cif"
     best_structure.to(filename=str(best_cif))
 
-    xrd_info = _simulate_xrd(best_structure, output_dir)
+    xrd_info = simulate_xrd(best_structure, output_dir)
 
     result = {
         "input_structure": str(structure_path),
@@ -144,3 +146,13 @@ def run_pipeline(structure_path: str | Path, output_dir: str | Path) -> Path:
     report = output_dir / "report.json"
     report.write_text(json.dumps(result, indent=2), encoding="utf-8")
     return report
+
+
+def run_pipeline_from_smiles(smiles: str, output_dir: str | Path) -> Path:
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    structure = smiles_to_structure(smiles)
+    tmp_cif = output_dir / "from_smiles_input.cif"
+    structure.to(filename=str(tmp_cif))
+    return run_pipeline(tmp_cif, output_dir)
