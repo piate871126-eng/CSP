@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SMILES → CSP/XRD Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 12px; }
+    input[type=text] { width: 100%; padding: 10px; font-size: 16px; }
+    button { margin-top: 10px; padding: 10px 16px; }
+    .error { color: #b00020; margin: 12px 0; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin-top: 16px; }
+    img { width: 100%; border: 1px solid #eee; border-radius: 6px; }
+    code { background: #f7f7f7; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>SMILES 입력 → XRD 그래프 생성</h1>
+  <p>예시: <code>CCO</code>, <code>c1ccccc1</code>, <code>CC(=O)O</code></p>
+
+  <form method="post">
+    <label for="smiles">SMILES</label>
+    <input id="smiles" name="smiles" type="text" value="{{ smiles }}" placeholder="예: CCO" required />
+    <button type="submit">계산 실행</button>
+  </form>
+
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
+
+  {% if report %}
+  <div class="card">
+    <h2>결과</h2>
+    <ul>
+      <li>Best template: {{ report.best.template }}</li>
+      <li>Predicted crystal system: {{ report.best.predicted_crystal_system }}</li>
+      <li>Space group: {{ report.best.spacegroup_symbol }} (#{{ report.best.spacegroup_number }})</li>
+      <li>Energy score: {{ "%.6f"|format(report.best.energy_score) }}</li>
+      <li>XRD peaks: {{ report.xrd.peak_count }}</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>XRD 그래프</h2>
+    <img alt="simulated xrd" src="data:image/png;base64,{{ xrd_image_b64 }}" />
+  </div>
+  {% endif %}
+</body>
+</html>

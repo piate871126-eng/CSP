@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "csp-xrd-pipeline"
+version = "0.2.0"
+description = "Simple reproducible CSP + lattice prediction + XRD simulation pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "pymatgen>=2024.5.1",
+  "spglib>=2.0",
+  "matplotlib>=3.8",
+  "flask>=3.0",
+  "rdkit-pypi>=2022.9.5"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0"
+]
+
+[project.scripts]
+cspxrd = "csp_xrd.cli:main"
+cspxrd-web = "csp_xrd.web:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
